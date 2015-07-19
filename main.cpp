@@ -1,4 +1,4 @@
-#include "editorwindow.h"
+#include "src/editorwindow.h"
 #include <QApplication>
 
 int main(int argc, char *argv[])

@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui
+QT       += core gui serialport
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -13,8 +13,16 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp\
-        editorwindow.cpp
+    src/codeeditor.cpp \
+    src/editorwindow.cpp \
+    src/highlighter.cpp
 
-HEADERS  += editorwindow.h
+HEADERS  += editorwindow.h \
+    src/codeeditor.h \
+    src/editorwindow.h \
+    src/highlighter.h
+
+INCLUDEPATH += src
+DEPENDPATH += src
 
 FORMS    += editorwindow.ui
