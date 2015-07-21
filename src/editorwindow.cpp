@@ -9,30 +9,40 @@
 #include <QMessageBox>
 #include <QTextStream>
 #include <QMenu>
+#include <QVariant>
 #include "highlighter.h"
+#include <QMap>
+#include <utility>
+
+QMap<QString, QSerialPortInfo> ports;
 
 EditorWindow::EditorWindow(QWidget *parent) :
     QMainWindow(parent),
     fileName(""),
+    codeEditor(new CodeEditor),
+    console(new QPlainTextEdit),
     ui(new Ui::EditorWindow)
 {
     ui->setupUi(this);
 
     setupFileMenu();
+    setupToolsMenu();
     setupHelpMenu();
 
     QSplitter* mEditorSplitter = new QSplitter();
     mEditorSplitter->setOrientation(Qt::Vertical);
 
-    CodeEditor *codeEditor = new CodeEditor();
-    codeEditor->setObjectName("codeEditor");
-
     Highlighter *highlighter = new Highlighter(codeEditor->document());
 
-    mEditorSplitter->addWidget(codeEditor);
+    console->setStyleSheet("background-color: black; color: white; font: 12pt 'Courier';");
+    console->appendPlainText("Initializing...\nOK!");
+    console->setEnabled(false);
 
-    QPlainTextEdit* console = new QPlainTextEdit();
+    mEditorSplitter->addWidget(codeEditor);
     mEditorSplitter->addWidget(console);
+
+    mEditorSplitter->setStretchFactor(0, 4);
+    mEditorSplitter->setStretchFactor(1, 1);
 
     setCentralWidget(mEditorSplitter);
     //loadPorts();
@@ -41,10 +51,20 @@ EditorWindow::EditorWindow(QWidget *parent) :
 
 void EditorWindow::loadPorts()
 {
+    portsMenu->clear();
     foreach (const QSerialPortInfo &info, QSerialPortInfo::availablePorts()) {
-           //ui->actionPort->menu()->addAction("" + info.portName());
-        //console->appendPlainText("" + info.portName());
+        QAction *action = portsMenu->addAction("" + info.portName());
+        //info.QSerialPortInfo;
+        ports[info.portName()] = info;
+        action->setData(info.portName());
+        action->setCheckable(true);
+        if(info.portName() == port) action->setChecked(true);
     }
+}
+
+void EditorWindow::selectPort(QAction *action)
+{
+    port = action->data().toString();
 }
 
 void EditorWindow::on_actionOpen()
@@ -63,8 +83,8 @@ void EditorWindow::on_actionOpen()
 
         QTextStream in(&file);
 
-        findChild<CodeEditor*>("codeEditor")->clear();
-        findChild<CodeEditor*>("codeEditor")->appendPlainText(in.readAll());
+        codeEditor->clear();
+        codeEditor->appendPlainText(in.readAll());
         file.close();
     }
 }
@@ -77,10 +97,12 @@ void EditorWindow::on_actionSave()
             // error message
         } else {
             QTextStream stream(&file);
-            stream << findChild<CodeEditor*>("codeEditor")->toPlainText();
+            codeEditor->toPlainText();
             stream.flush();
             file.close();
         }
+    } else {
+        on_actionSaveAs();
     }
 }
 
@@ -90,6 +112,12 @@ void EditorWindow::on_actionSaveAs()
             tr("C++ Files (*.cpp *.h)"));
 
     on_actionSave();
+}
+
+void EditorWindow::on_actionNew()
+{
+    codeEditor->clear();
+    fileName = "";
 }
 
 void EditorWindow::setupFileMenu()
@@ -102,6 +130,24 @@ void EditorWindow::setupFileMenu()
     fileMenu->addAction(tr("&Save..."), this, SLOT(on_actionSave()), QKeySequence::Save);
     fileMenu->addAction(tr("&Save as..."), this, SLOT(on_actionSaveAs()), QKeySequence::SaveAs);
     fileMenu->addAction(tr("E&xit"), qApp, SLOT(quit()), QKeySequence::Quit);
+}
+
+void EditorWindow::setupToolsMenu()
+{
+    QMenu *fileMenu = new QMenu(tr("&Tools"), this);
+    ui->menuBar->addMenu(fileMenu);
+
+    fileMenu->addAction(tr("&Build"), this, SLOT(on_actionBuild()));
+    fileMenu->addSeparator();
+    portsMenu = fileMenu->addMenu(tr("Port"));
+
+    connect(portsMenu, SIGNAL(aboutToShow()), this, SLOT(loadPorts()));
+    connect(portsMenu, SIGNAL(triggered(QAction*)), this, SLOT(selectPort(QAction*)));
+}
+
+void EditorWindow::on_actionBuild()
+{
+
 }
 
 void EditorWindow::setupHelpMenu()
