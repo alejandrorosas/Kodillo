@@ -12,27 +12,28 @@
 #include <QVariant>
 #include "highlighter.h"
 #include <QMap>
-#include <utility>
+#include <QCompleter>
 
 QMap<QString, QSerialPortInfo> ports;
 
 EditorWindow::EditorWindow(QWidget *parent) :
     QMainWindow(parent),
+    ui(new Ui::EditorWindow),
     fileName(""),
-    codeEditor(new CodeEditor),
     console(new QPlainTextEdit),
-    ui(new Ui::EditorWindow)
+    codeEditor(new CodeEditor)
 {
     ui->setupUi(this);
 
     setupFileMenu();
+    setupEditMenu();
     setupToolsMenu();
     setupHelpMenu();
 
     QSplitter* mEditorSplitter = new QSplitter();
     mEditorSplitter->setOrientation(Qt::Vertical);
 
-    Highlighter *highlighter = new Highlighter(codeEditor->document());
+    new Highlighter(codeEditor->document());
 
     console->setStyleSheet("background-color: black; color: white; font: 12pt 'Courier';");
     console->appendPlainText("Initializing...\nOK!");
@@ -97,7 +98,7 @@ void EditorWindow::on_actionSave()
             // error message
         } else {
             QTextStream stream(&file);
-            codeEditor->toPlainText();
+            stream << codeEditor->toPlainText();
             stream.flush();
             file.close();
         }
@@ -132,6 +133,12 @@ void EditorWindow::setupFileMenu()
     fileMenu->addAction(tr("E&xit"), qApp, SLOT(quit()), QKeySequence::Quit);
 }
 
+void EditorWindow::setupEditMenu()
+{
+    QMenu *fileMenu = new QMenu(tr("&Edit"), this);
+    ui->menuBar->addMenu(fileMenu);
+}
+
 void EditorWindow::setupToolsMenu()
 {
     QMenu *fileMenu = new QMenu(tr("&Tools"), this);
@@ -155,7 +162,7 @@ void EditorWindow::setupHelpMenu()
     QMenu *helpMenu = new QMenu(tr("&Help"), this);
     ui->menuBar->addMenu(helpMenu);
 
-    helpMenu->addAction(tr("&About"), this, SLOT());
+    helpMenu->addAction(tr("&About"));
 }
 
 EditorWindow::~EditorWindow()

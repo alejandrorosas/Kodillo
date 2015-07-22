@@ -34,6 +34,7 @@ private:
 
     //Menu
     void setupFileMenu();
+    void setupEditMenu();
     void setupHelpMenu();
     void setupToolsMenu();
 

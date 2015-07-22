@@ -2,6 +2,8 @@
 
 #include <QPlainTextEdit>
 #include <QObject>
+#include <QString>
+#include <QCompleter>
 
 class QPaintEvent;
 class QResizeEvent;
@@ -18,19 +20,33 @@ class CodeEditor : public QPlainTextEdit
 public:
     CodeEditor(QWidget *parent = 0);
 
+
+    void setCompleter(QCompleter *c);
+    QCompleter *completer() const;
+
     void lineNumberAreaPaintEvent(QPaintEvent *event);
     int lineNumberAreaWidth();
 
 protected:
     void resizeEvent(QResizeEvent *event) Q_DECL_OVERRIDE;
+    void keyPressEvent(QKeyEvent *e) Q_DECL_OVERRIDE;
+    void focusInEvent(QFocusEvent *e) Q_DECL_OVERRIDE;
 
 private slots:
     void updateLineNumberAreaWidth(int newBlockCount);
     void highlightCurrentLine();
     void updateLineNumberArea(const QRect &, int);
+    void insertCompletion(const QString &completion);
+    void updateModel();
 
 private:
     QWidget *lineNumberArea;
+    QCompleter *_completer;
+
+    QString textUnderCursor() const;
+    bool increaseSelectionIndent();
+    void completerKeyEvent(QKeyEvent *e);
+    void configureStyle();
 };
 
 
