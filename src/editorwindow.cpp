@@ -135,8 +135,21 @@ void EditorWindow::setupFileMenu()
 
 void EditorWindow::setupEditMenu()
 {
-    QMenu *fileMenu = new QMenu(tr("&Edit"), this);
-    ui->menuBar->addMenu(fileMenu);
+    QMenu *editMenu = new QMenu(tr("&Edit"), this);
+    ui->menuBar->addMenu(editMenu);
+
+    //codeEditor->undo();
+    editMenu->addAction(tr("Undo"),codeEditor,SLOT(undo()),QKeySequence::Undo);
+    editMenu->addAction(tr("Redo"),codeEditor,SLOT(redo()),QKeySequence::Redo);
+    editMenu->addSeparator();
+    editMenu->addAction(tr("Cut"),codeEditor,SLOT(cut()),QKeySequence::Cut);
+    editMenu->addAction(tr("Copy"),codeEditor,SLOT(copy()),QKeySequence::Copy);
+    editMenu->addAction(tr("Paste"),codeEditor,SLOT(paste()),QKeySequence::Paste);
+    editMenu->addAction(tr("Select All"),codeEditor,SLOT(selectAll()),QKeySequence::SelectAll);
+    editMenu->addSeparator();
+    editMenu->addAction(tr("Increase Indent Selection"),codeEditor,SLOT(increaseIndentSlot()));
+    editMenu->addAction(tr("Decrease Indent Selection"), codeEditor, SLOT(decreaseIndentSlot()));
+
 }
 
 void EditorWindow::setupToolsMenu()

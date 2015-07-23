@@ -38,13 +38,20 @@ private slots:
     void updateLineNumberArea(const QRect &, int);
     void insertCompletion(const QString &completion);
     void updateModel();
+    void increaseIndentSlot();
+    void decreaseIndentSlot();
 
 private:
     QWidget *lineNumberArea;
     QCompleter *_completer;
 
     QString textUnderCursor() const;
-    bool increaseSelectionIndent();
+    void increaseIndent();
+    void decreaseIndent();
+    bool increaseIndentKEvent();
+    bool decreaseIndentKEvent();
+    void handleDedent(QTextCursor cursor);
+
     void completerKeyEvent(QKeyEvent *e);
     void configureStyle();
 };

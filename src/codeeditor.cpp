@@ -55,11 +55,88 @@ void CodeEditor::updateModel()
     _completer->setModel(new QStringListModel(words,_completer));
 }
 
-bool CodeEditor::increaseSelectionIndent()
+void CodeEditor::increaseIndentSlot()
+{
+    increaseIndent();
+}
+
+void CodeEditor::decreaseIndentSlot()
+{
+    decreaseIndent();
+}
+
+void CodeEditor::decreaseIndent()
+{
+    QTextCursor curs = textCursor();
+
+    int spos = curs.anchor(), epos = curs.position();
+
+    if(spos > epos)
+    {
+        std::swap(spos, epos);
+    }
+
+    curs.setPosition(spos, QTextCursor::MoveAnchor);
+    int sblock = curs.block().blockNumber();
+
+    curs.setPosition(epos, QTextCursor::MoveAnchor);
+    int eblock = curs.block().blockNumber();
+
+    curs.setPosition(spos, QTextCursor::MoveAnchor);
+
+    curs.beginEditBlock();
+
+    for(int i = 0; i <= (eblock - sblock); ++i)
+    {
+        curs.movePosition(QTextCursor::StartOfBlock, QTextCursor::MoveAnchor);
+        handleDedent(curs);
+        curs.movePosition(QTextCursor::NextBlock, QTextCursor::MoveAnchor);
+    }
+
+    curs.endEditBlock();
+
+    curs.setPosition(spos, QTextCursor::MoveAnchor);
+    curs.movePosition(QTextCursor::StartOfBlock, QTextCursor::MoveAnchor);
+
+    while(curs.block().blockNumber() < eblock)
+    {
+        curs.movePosition(QTextCursor::NextBlock, QTextCursor::KeepAnchor);
+    }
+
+    curs.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
+    setTextCursor(curs);
+}
+
+void CodeEditor::handleDedent(QTextCursor cursor){
+
+    cursor.movePosition(QTextCursor::StartOfLine);
+    QString line = cursor.block().text();
+
+    if (line.startsWith("\t"))
+        cursor.deleteChar();
+}
+
+bool CodeEditor::increaseIndentKEvent()
 {
     QTextCursor curs = textCursor();
     if(!curs.hasSelection())
         return false;
+    increaseIndent();
+    return true;
+}
+
+bool CodeEditor::decreaseIndentKEvent()
+{
+    QTextCursor curs = textCursor();
+    if(!curs.hasSelection())
+        return false;
+    decreaseIndent();
+    return true;
+}
+
+void CodeEditor::increaseIndent()
+{
+    QTextCursor curs = textCursor();
 
     int spos = curs.anchor(), epos = curs.position();
 
@@ -97,8 +174,6 @@ bool CodeEditor::increaseSelectionIndent()
 
     curs.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
     setTextCursor(curs);
-
-    return true;
 }
 
 
@@ -287,7 +362,10 @@ void CodeEditor::keyPressEvent(QKeyEvent *e)
     std::cout << "key: " << e->key() << std::endl;
     if(e->key() == Qt::Key_Tab)
     {
-        if (increaseSelectionIndent()) return;
+        if (increaseIndentKEvent()) return;
+    } else if(e->key() == Qt::Key_Backtab)
+    {
+        if (decreaseIndentKEvent()) return;
     }
     completerKeyEvent(e);
 }
