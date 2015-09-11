@@ -17,7 +17,7 @@ Highlighter::Highlighter(QTextDocument *parent)
                     << "\\bslots\\b" << "\\bstatic\\b" << "\\bstruct\\b"
                     << "\\btemplate\\b" << "\\btypedef\\b" << "\\btypename\\b"
                     << "\\bunion\\b" << "\\bunsigned\\b" << "\\bvirtual\\b"
-                    << "\\bvoid\\b" << "\\bvolatile\\b";
+                    << "\\bvoid\\b" << "\\bvolatile\\b" << "\\bdefine\\b" << "\\binclude\\b";
     foreach (const QString &pattern, keywordPatterns) {
         rule.pattern = QRegExp(pattern);
         rule.format = keywordFormat;
@@ -47,6 +47,15 @@ Highlighter::Highlighter(QTextDocument *parent)
     rule.pattern = QRegExp("\\b[A-Za-z0-9_]+(?=\\()");
     rule.format = functionFormat;
     highlightingRules.append(rule);
+
+    definitionFormat.setForeground(Qt::blue);
+    QStringList definitionPatterns;
+    definitionPatterns << "\\bdefine\\b" << "\\binclude\\b";
+    foreach (const QString &pattern, definitionPatterns) {
+        rule.pattern = QRegExp(pattern);
+        rule.format = definitionFormat;
+        highlightingRules.append(rule);
+    }
 
     commentStartExpression = QRegExp("/\\*");
     commentEndExpression = QRegExp("\\*/");

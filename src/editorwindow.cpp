@@ -13,6 +13,9 @@
 #include "highlighter.h"
 #include <QMap>
 #include <QCompleter>
+#include <QPixmap>
+#include <QSize>
+#include "monitordialog.h"
 
 QMap<QString, QSerialPortInfo> ports;
 
@@ -29,6 +32,7 @@ EditorWindow::EditorWindow(QWidget *parent) :
     setupEditMenu();
     setupToolsMenu();
     setupHelpMenu();
+    setupToolbar();
 
     QSplitter* mEditorSplitter = new QSplitter();
     mEditorSplitter->setOrientation(Qt::Vertical);
@@ -147,8 +151,9 @@ void EditorWindow::setupEditMenu()
     editMenu->addAction(tr("Paste"),codeEditor,SLOT(paste()),QKeySequence::Paste);
     editMenu->addAction(tr("Select All"),codeEditor,SLOT(selectAll()),QKeySequence::SelectAll);
     editMenu->addSeparator();
-    editMenu->addAction(tr("Increase Indent Selection"),codeEditor,SLOT(increaseIndentSlot()));
-    editMenu->addAction(tr("Decrease Indent Selection"), codeEditor, SLOT(decreaseIndentSlot()));
+    editMenu->addAction(tr("Auto Indent"),codeEditor,SLOT(autoIndentSlot()),tr("Ctrl+T"));
+    editMenu->addAction(tr("Increase Indent Selection"),codeEditor,SLOT(increaseIndentSlot()),tr("Tab"));
+    editMenu->addAction(tr("Decrease Indent Selection"), codeEditor, SLOT(decreaseIndentSlot()),tr("Backtab"));
 
 }
 
@@ -181,4 +186,51 @@ void EditorWindow::setupHelpMenu()
 EditorWindow::~EditorWindow()
 {
     delete ui;
+}
+
+void EditorWindow::setupToolbar()
+{
+    QPixmap buildIcon = QPixmap(":/images/toolbar/build.png");
+    QPixmap runIcon = QPixmap(":/images/toolbar/run.png");
+    QPixmap serialIcon = QPixmap(":/images/toolbar/serial.png");
+
+    buildToolbar = new QAction(buildIcon, "Build", this);
+    runToolbar = new QAction(runIcon, "Run", this);
+    serialToolbar = new QAction(serialIcon, "Start Serial", this);
+
+
+    QWidget *spacerWidget = new QWidget(this);
+    spacerWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+    spacerWidget->setVisible(true);
+
+    buildToolbar->setEnabled(true);
+    runToolbar->setEnabled(false);
+
+    QToolBar *toolbar = addToolBar("Main Toolbar");
+    toolbar->setIconSize( QSize( 24, 24 ) );
+    toolbar->setMovable(false);
+    toolbar->addAction(buildToolbar);
+    toolbar->addAction(runToolbar);
+    toolbar->addWidget(spacerWidget);
+    toolbar->addAction(serialToolbar);
+
+    connect(buildToolbar, SIGNAL(triggered()), this, SLOT(toolbarBuild()));
+    connect(runToolbar, SIGNAL(triggered()), this, SLOT(toolbarRun()));
+    connect(serialToolbar, SIGNAL(triggered()), this, SLOT(toolbarShowMonitor()));
+}
+
+void EditorWindow::toolbarBuild()
+{
+
+}
+
+void EditorWindow::toolbarRun()
+{
+
+}
+
+void EditorWindow::toolbarShowMonitor()
+{
+    MonitorDialog *monitor = new MonitorDialog();
+    monitor->show();
 }

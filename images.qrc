@@ -1,0 +1,7 @@
+<RCC>
+    <qresource prefix="/">
+        <file>images/toolbar/build.png</file>
+        <file>images/toolbar/run.png</file>
+        <file>images/toolbar/serial.png</file>
+    </qresource>
+</RCC>

@@ -6,6 +6,7 @@
 #include <QMenu>
 #include <QSerialPortInfo>
 #include <QAction>
+#include <QToolBar>
 #include "codeeditor.h"
 
 namespace Ui {
@@ -30,6 +31,10 @@ private:
     QPlainTextEdit *console;
     CodeEditor *codeEditor;
 
+    QAction *buildToolbar;
+    QAction *runToolbar;
+    QAction *serialToolbar;
+
     QMenu *portsMenu;
 
     //Menu
@@ -37,6 +42,8 @@ private:
     void setupEditMenu();
     void setupHelpMenu();
     void setupToolsMenu();
+
+    void setupToolbar();
 
 private slots:
     void on_actionOpen();
@@ -46,4 +53,8 @@ private slots:
     void on_actionNew();
     void loadPorts();
     void selectPort(QAction *action);
+
+    void toolbarRun();
+    void toolbarBuild();
+    void toolbarShowMonitor();
 };

@@ -17,14 +17,22 @@ TEMPLATE = app
 SOURCES += main.cpp\
     src/codeeditor.cpp \
     src/editorwindow.cpp \
-    src/highlighter.cpp
+    src/highlighter.cpp \
+    src/utils/autoformat.cpp \
+    src/monitordialog.cpp
 
 HEADERS  += editorwindow.h \
     src/codeeditor.h \
     src/editorwindow.h \
-    src/highlighter.h
+    src/highlighter.h \
+    src/utils/autoformat.h \
+    src/monitordialog.h
 
-INCLUDEPATH += src
-DEPENDPATH += src
+INCLUDEPATH += src utils
+DEPENDPATH += src utils
 
-FORMS    += editorwindow.ui
+FORMS    += editorwindow.ui \
+    monitordialog.ui
+
+RESOURCES += \
+    images.qrc

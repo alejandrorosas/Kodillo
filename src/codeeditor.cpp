@@ -2,6 +2,7 @@
 
 #include "codeeditor.h"
 
+#include "utils/autoformat.h"
 #include <QStringListModel>
 #include <QStringList>
 #include <iostream>
@@ -32,6 +33,20 @@ CodeEditor::CodeEditor(QWidget *parent) : QPlainTextEdit(parent), _completer(0)
     highlightCurrentLine();
 }
 
+bool CodeEditor::bracketsComplete(int key){
+    switch (key){
+        case '{':  insertPlainText("{}");break;
+        case '[':  insertPlainText("[]");break;
+        case '(':  insertPlainText("()");break;
+        case '<':  insertPlainText("<>");break;
+        case '"':  insertPlainText("\"\"");break;
+        case '\'': insertPlainText("''");break;
+        default: return false;
+    }
+    moveCursor(QTextCursor::Left);
+    return true;
+}
+
 void CodeEditor::configureStyle()
 {
     QFont font;
@@ -50,7 +65,7 @@ void CodeEditor::configureStyle()
 
 void CodeEditor::updateModel()
 {
-    QStringList words = toPlainText().split(QRegExp("(\\s|\\n|\\r)+"), QString::SkipEmptyParts);
+    QStringList words = toPlainText().split(QRegExp("(\\s|\\n|\\r|\\[|\\]|\\(|\\)|\\.|\\,|\\+|\\?|\\t)+"), QString::SkipEmptyParts);
     words =  words.toSet().toList(); //Remove repeated
     _completer->setModel(new QStringListModel(words,_completer));
 }
@@ -127,11 +142,16 @@ bool CodeEditor::increaseIndentKEvent()
 
 bool CodeEditor::decreaseIndentKEvent()
 {
-    QTextCursor curs = textCursor();
-    if(!curs.hasSelection())
-        return false;
     decreaseIndent();
     return true;
+}
+
+void CodeEditor::autoIndentSlot()
+{
+    selectAll();
+
+    QTextCursor curs = textCursor();
+    curs.insertText(AutoFormat::formatString(toPlainText()));
 }
 
 void CodeEditor::increaseIndent()
@@ -359,13 +379,12 @@ void CodeEditor::completerKeyEvent(QKeyEvent *e)
 void CodeEditor::keyPressEvent(QKeyEvent *e)
 {
     updateModel();
-    std::cout << "key: " << e->key() << std::endl;
     if(e->key() == Qt::Key_Tab)
-    {
         if (increaseIndentKEvent()) return;
-    } else if(e->key() == Qt::Key_Backtab)
-    {
+    if(e->key() == Qt::Key_Backtab)
         if (decreaseIndentKEvent()) return;
-    }
+
+    if(bracketsComplete(e->key()))
+        return;
     completerKeyEvent(e);
 }

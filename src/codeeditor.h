@@ -40,7 +40,7 @@ private slots:
     void updateModel();
     void increaseIndentSlot();
     void decreaseIndentSlot();
-
+    void autoIndentSlot();
 private:
     QWidget *lineNumberArea;
     QCompleter *_completer;
@@ -51,6 +51,8 @@ private:
     bool increaseIndentKEvent();
     bool decreaseIndentKEvent();
     void handleDedent(QTextCursor cursor);
+
+    bool bracketsComplete(int key);
 
     void completerKeyEvent(QKeyEvent *e);
     void configureStyle();
