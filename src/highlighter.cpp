@@ -17,7 +17,7 @@ Highlighter::Highlighter(QTextDocument *parent)
                     << "\\bslots\\b" << "\\bstatic\\b" << "\\bstruct\\b"
                     << "\\btemplate\\b" << "\\btypedef\\b" << "\\btypename\\b"
                     << "\\bunion\\b" << "\\bunsigned\\b" << "\\bvirtual\\b"
-                    << "\\bvoid\\b" << "\\bvolatile\\b" << "\\bdefine\\b" << "\\binclude\\b";
+                    << "\\bvoid\\b" << "\\bvolatile\\b";
     foreach (const QString &pattern, keywordPatterns) {
         rule.pattern = QRegExp(pattern);
         rule.format = keywordFormat;
@@ -50,7 +50,7 @@ Highlighter::Highlighter(QTextDocument *parent)
 
     definitionFormat.setForeground(Qt::blue);
     QStringList definitionPatterns;
-    definitionPatterns << "\\bdefine\\b" << "\\binclude\\b";
+    definitionPatterns << "#define" << "#include" << "#pragma";
     foreach (const QString &pattern, definitionPatterns) {
         rule.pattern = QRegExp(pattern);
         rule.format = definitionFormat;
