@@ -97,17 +97,22 @@ void EditorWindow::on_actionOpen()
 void EditorWindow::on_actionSave()
 {
     if (!fileName.isEmpty()) {
-        QFile file(fileName);
-        if (!file.open(QIODevice::WriteOnly)) {
-            // error message
-        } else {
-            QTextStream stream(&file);
-            stream << codeEditor->toPlainText();
-            stream.flush();
-            file.close();
-        }
+        save();
     } else {
         on_actionSaveAs();
+    }
+}
+
+void EditorWindow::save()
+{
+    QFile file(fileName);
+    if (!file.open(QIODevice::WriteOnly)) {
+        // error message
+    } else {
+        QTextStream stream(&file);
+        stream << codeEditor->toPlainText();
+        stream.flush();
+        file.close();
     }
 }
 
@@ -115,8 +120,10 @@ void EditorWindow::on_actionSaveAs()
 {
     fileName = QFileDialog::getSaveFileName(this, tr("Save File"), QString(),
             tr("C++ Files (*.cpp *.h)"));
-
-    on_actionSave();
+    if (fileName != "")
+    {
+        save();
+    }
 }
 
 void EditorWindow::on_actionNew()

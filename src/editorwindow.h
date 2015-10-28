@@ -45,6 +45,8 @@ private:
 
     void setupToolbar();
 
+    void save();
+
 private slots:
     void on_actionOpen();
     void on_actionSave();
